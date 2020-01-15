@@ -34,7 +34,6 @@ def ABM_model(traders, orderbook, parameters, seed=1):
         traders_by_wealth.sort(key=lambda x: x.var.wealth[-1], reverse=True)
 
         # evolve the fundamental value via random walk process
-        #fundamental.append(max(fundamental[-1] + parameters["std_fundamental"] * np.random.randn(), 0.1))
         fundamental.append(max(
             ornstein_uhlenbeck_evolve(parameters["fundamental_value"], fundamental[-1], parameters["std_fundamental"],
                                       parameters['mean_reversion'], seed), 0.1))

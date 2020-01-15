@@ -1,5 +1,5 @@
 from model import *
-from init_objects import init_objects_distr
+from initialize_model import init_objects
 from functions.helpers import organise_data
 from functions.stylizedfacts import autocorrelation_returns
 
