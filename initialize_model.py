@@ -41,7 +41,10 @@ def init_objects(parameters, seed):
         init_stocks = int(np.random.uniform(0, parameters["init_stocks"]))
         init_money = np.random.uniform(0, (parameters["init_stocks"] * parameters['fundamental_value']))
 
-        c_share_strat = div0(weight_chartist, (weight_fundamentalist + weight_chartist))
+        if weight_random < 1.0:
+            c_share_strat = div0(weight_chartist, (weight_fundamentalist + weight_chartist))
+        else:
+            c_share_strat = 0.0
 
         # initialize co_variance_matrix
         init_covariance_matrix = calculate_covariance_matrix(historical_stock_returns, parameters["std_fundamental"])
