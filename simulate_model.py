@@ -24,10 +24,10 @@ parameters = {'trader_sample_size': 10,
               'trades_per_tick': 1}
 
 # 2 initialise model objects
-traders, orderbook = init_objects(parameters, seed=0)
+traders, orderbook, market_maker = init_objects(parameters, seed=0)
 
 # 3 simulate model
-traders, orderbook = ABM_model(traders, orderbook, parameters, seed=0)
+traders, orderbook, market_maker = ABM_model(traders, orderbook, market_maker, parameters, seed=0)
 
 
 print("The simulations took", time.time() - start_time, "to run")
