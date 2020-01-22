@@ -64,6 +64,12 @@ def init_objects(parameters, seed):
         lft_expectations = TraderExpectations(parameters['fundamental_value'])
         traders.append(Trader(idx, lft_vars, lft_params, lft_expectations))
 
+    # Add market maker with 100k money and 1k stocks
+    mm_tradervariables = TraderVariables(0, 0, 100000, 1000, 0, 0)
+    mm_traderparams = TraderParameters(0, 10000)
+    mm_traderexp = TraderExpectations(0)
+    market_maker = Trader(0, mm_tradervariables, mm_traderparams, mm_traderexp)
+
     orderbook = LimitOrderBook(parameters['fundamental_value'], parameters["std_fundamental"],
                                max_horizon,
                                parameters['ticks'])
@@ -71,4 +77,4 @@ def init_objects(parameters, seed):
     # initialize order-book returns for initial variance calculations
     orderbook.returns = list(historical_stock_returns)
 
-    return traders, orderbook
+    return traders, orderbook, market_maker

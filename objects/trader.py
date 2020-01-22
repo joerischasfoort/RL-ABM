@@ -15,6 +15,7 @@ class Trader:
         self.var = variables
         self.par = parameters
         self.exp = expectations
+        self.first_run = True
 
     def __repr__(self):
         """

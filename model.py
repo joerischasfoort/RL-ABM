@@ -4,7 +4,7 @@ from functions.portfolio_optimization import *
 from functions.helpers import calculate_covariance_matrix, div0, ornstein_uhlenbeck_evolve
 
 
-def ABM_model(traders, orderbook, parameters, seed=1):
+def ABM_model(traders, orderbook, market_maker, parameters, seed=1):
     """
     The main model function of distribution model where trader stocks are tracked.
     :param traders: list of Agent objects
@@ -49,6 +49,28 @@ def ABM_model(traders, orderbook, parameters, seed=1):
             orderbook.returns[-1] = (mid_price - orderbook.tick_close_price[-2]) / orderbook.tick_close_price[-2]
             chartist_component = np.cumsum(orderbook.returns[:-len(orderbook.returns) - 1:-1]
                                            ) / np.arange(1., float(len(orderbook.returns) + 1))
+
+
+            # Market maker quotes best ask and bid whenever money/inventory permits
+            inventory = market_maker.var.stocks[0]
+            inventory_value = mid_price*inventory
+            cash = market_maker.var.money[0]
+            wealth = cash + inventory_value
+            print(f"Market maker has money {cash} and stocks {inventory}")
+            print(f"Stocks are worth {inventory_value} and thus MM's wealth is {wealth}")
+
+            if market_maker.first_run:
+                initial_wealth = wealth
+                market_maker.first_run = False
+            print(f"Profit margin thus far is {round(wealth/initial_wealth-1,2)*100}%")
+
+            if cash > 0:
+                bid = orderbook.add_bid(orderbook.highest_bid_price, 1, market_maker)
+                market_maker.var.active_orders.append(bid)
+            if inventory > 0:
+                ask = orderbook.add_ask(orderbook.lowest_ask_price, 1, market_maker)
+                market_maker.var.active_orders.append(ask)
+
 
             for trader in active_traders:
                 # Cancel any active orders
@@ -99,4 +121,4 @@ def ABM_model(traders, orderbook, parameters, seed=1):
         orderbook.cleanse_book()
         orderbook.fundamental = fundamental
 
-    return traders, orderbook
+    return traders, orderbook, market_maker

@@ -45,8 +45,8 @@ def simulate_a_seed(seed_params):
 
     obs = []
     # run model with parameters
-    traders, orderbook = init_objects(params, seed)
-    traders, orderbook = ABM_model(traders, orderbook, params, seed)
+    traders, orderbook, market_maker = init_objects(params, seed)
+    traders, orderbook, market_maker = ABM_model(traders, orderbook, market_maker, params, seed)
     obs.append(orderbook)
 
     # store simulated stylized facts
