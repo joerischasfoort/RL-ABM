@@ -49,9 +49,9 @@ def init_objects(parameters, seed):
         # initialize co_variance_matrix
         init_covariance_matrix = calculate_covariance_matrix(historical_stock_returns, parameters["std_fundamental"])
 
-        lft_vars = TraderVariablesDistribution(weight_fundamentalist, weight_chartist, weight_random, c_share_strat,
-                                               init_money, init_stocks, init_covariance_matrix,
-                                               parameters['fundamental_value'])
+        lft_vars = TraderVariables(weight_fundamentalist, weight_chartist, weight_random, c_share_strat,
+                                   init_money, init_stocks, init_covariance_matrix,
+                                   parameters['fundamental_value'])
 
         # determine heterogeneous horizon and risk aversion based on
         individual_horizon = np.random.randint(10, parameters['horizon'])
@@ -59,15 +59,17 @@ def init_objects(parameters, seed):
         individual_risk_aversion = abs(np.random.normal(parameters["base_risk_aversion"], parameters["base_risk_aversion"] / 5.0))#parameters["base_risk_aversion"] * relative_fundamentalism
         individual_learning_ability = min(abs(np.random.normal(parameters['average_learning_ability'], 0.1)), 1.0) #TODO what to do with std_dev
 
-        lft_params = TraderParametersDistribution(individual_horizon, individual_risk_aversion,
-                                                  individual_learning_ability, parameters['spread_max'])
+        lft_params = TraderParameters(individual_horizon, individual_risk_aversion,
+                                      individual_learning_ability, parameters['spread_max'])
         lft_expectations = TraderExpectations(parameters['fundamental_value'])
         traders.append(Trader(idx, lft_vars, lft_params, lft_expectations))
 
     # Add market maker with 100k money and 1k stocks
-    mm_tradervariables = TraderVariables(0, 0, 100000, 1000, 0, 0)
-    mm_traderparams = TraderParameters(0, 10000)
-    mm_traderexp = TraderExpectations(0)
+    mm_tradervariables = TraderVariables(weight_fundamentalist=0, weight_chartist=0, weight_random=0,
+                                         c_share_strat=0, money=100000, stocks=1000, covariance_matrix=0,
+                                         init_price=parameters['fundamental_value'])
+    mm_traderparams = TraderParameters(ref_horizon=0, risk_aversion=0, learning_ability=0.0, max_spread=10000)
+    mm_traderexp = TraderExpectations(parameters['fundamental_value'])
     market_maker = Trader(0, mm_tradervariables, mm_traderparams, mm_traderexp)
 
     orderbook = LimitOrderBook(parameters['fundamental_value'], parameters["std_fundamental"],
