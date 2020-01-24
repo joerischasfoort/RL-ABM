@@ -10,7 +10,7 @@ start_time = time.time()
 parameters = {'trader_sample_size': 10,
               'n_traders': 50,
               'init_stocks': 81,
-              'ticks': 606,
+              'ticks': 601,
               'fundamental_value': 1112.2356754564078,
               'std_fundamental': 0.036106530849401956,
               'base_risk_aversion': 0.7,
@@ -31,7 +31,6 @@ traders, orderbook, market_maker = init_objects(parameters, seed=0)
 
 # 3 simulate model
 traders, orderbook, market_maker = ABM_model(traders, orderbook, market_maker, parameters, seed=0)
-
 
 print("The simulations took", time.time() - start_time, "to run")
 

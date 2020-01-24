@@ -19,6 +19,7 @@ def ABM_model(traders, orderbook, market_maker, parameters, seed=1):
     orderbook.tick_close_price.append(fundamental[-1])
 
     traders_by_wealth = [t for t in traders]
+    initial_mm_wealth = market_maker.var.wealth[0]
 
     for tick in range(parameters['horizon'] + 1, parameters["ticks"] + parameters['horizon'] + 1): # for init history
         if tick == parameters['horizon'] + 1:
@@ -28,7 +29,9 @@ def ABM_model(traders, orderbook, market_maker, parameters, seed=1):
         for trader in traders:
             trader.var.money.append(trader.var.money[-1])
             trader.var.stocks.append(trader.var.stocks[-1])
-            trader.var.wealth.append(trader.var.money[-1] + trader.var.stocks[-1] * orderbook.tick_close_price[-1]) # TODO debug
+            trader.var.wealth.append(trader.var.money[-1] + trader.var.stocks[-1] * orderbook.tick_close_price[-1])
+
+        #TODO Jakob and / or Adrien update variables of the market maker here (similar to above)
 
         # sort the traders by wealth to
         traders_by_wealth.sort(key=lambda x: x.var.wealth[-1], reverse=True)
@@ -50,8 +53,8 @@ def ABM_model(traders, orderbook, market_maker, parameters, seed=1):
             chartist_component = np.cumsum(orderbook.returns[:-len(orderbook.returns) - 1:-1]
                                            ) / np.arange(1., float(len(orderbook.returns) + 1))
 
-
             # Market maker quotes best ask and bid whenever money/inventory permits
+            # TODO Jakob / Adrien make the market maker use stock / money / wealth data over time (see traders)
             inventory = market_maker.var.stocks[0]
             inventory_value = mid_price*inventory
             cash = market_maker.var.money[0]
@@ -59,10 +62,7 @@ def ABM_model(traders, orderbook, market_maker, parameters, seed=1):
             if parameters['verbose']:
                 print(f"Market maker has money {cash} and stocks {inventory}")
                 print(f"Stocks are worth {inventory_value} and thus MM's wealth is {wealth}")
-                if market_maker.first_run:
-                    initial_wealth = wealth
-                    market_maker.first_run = False
-                print(f"Profit margin thus far is {round(wealth/initial_wealth-1,2)*100}%")
+                print(f"Profit margin thus far is {round(wealth/initial_mm_wealth-1,2)*100}%")
 
             # Keep track of metrics
             market_maker.metrics['money'].append(cash)
@@ -78,7 +78,6 @@ def ABM_model(traders, orderbook, market_maker, parameters, seed=1):
             if inventory > 0:
                 ask = orderbook.add_ask(orderbook.lowest_ask_price, 1, market_maker)
                 market_maker.var.active_orders.append(ask)
-
 
             for trader in active_traders:
                 # Cancel any active orders

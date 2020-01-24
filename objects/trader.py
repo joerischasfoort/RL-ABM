@@ -15,7 +15,6 @@ class Trader:
         self.var = variables
         self.par = parameters
         self.exp = expectations
-        self.first_run = True
         self.metrics = dict.fromkeys(['money', 'inventory', 'inventory_value', 'wealth'], [])
 
     def __repr__(self):
@@ -54,57 +53,6 @@ class TraderVariables:
     """
     Holds the initial variables for the traders
     """
-    def __init__(self, weight_fundamentalist, weight_random,
-                 money, stocks, covariance_matrix, init_price):
-        """
-        Initializes variables for the trader
-        :param weight_fundamentalist: float fundamentalist expectation component
-        :param weight_chartist: float trend-following chartism expectation component
-        :param weight_random: float random or heterogeneous expectation component
-        :param weight_mean_reversion: float mean-reversion chartism expectation component
-        """
-        self.weight_fundamentalist = [weight_fundamentalist]
-        self.weight_random = [weight_random]
-        self.money = [money]
-        self.stocks = [stocks]
-        self.wealth = [money + stocks * init_price]
-        self.covariance_matrix = covariance_matrix
-        self.active_orders = []
-
-
-class TraderParameters:
-    """
-    Holds the the trader parameters for the distribution model
-    """
-
-    def __init__(self, risk_aversion, max_spread):
-        """
-        Initializes trader parameters
-        :param ref_horizon: integer horizon over which the trader can observe the past
-        :param max_spread: Maximum spread at which the trader will submit orders to the book
-        :param risk_aversion: float aversion to price volatility
-        """
-        self.risk_aversion = risk_aversion
-        self.spread = max_spread * np.random.rand()
-
-
-class TraderExpectations:
-    """
-    Holds the agent expectations for several variables
-    """
-    def __init__(self, price):
-        """
-        Initializes trader expectations
-        :param price: float
-        """
-        self.price = price
-        self.returns = {'stocks': 0.0, 'money': 0.0}
-
-
-class TraderVariablesDistribution:
-    """
-    Holds the initial variables for the traders
-    """
     def __init__(self, weight_fundamentalist, weight_chartist, weight_random, c_share_strat,
                  money, stocks, covariance_matrix, init_price):
         """
@@ -128,7 +76,7 @@ class TraderVariablesDistribution:
         self.hypothetical_wealth = [money + stocks * init_price]
 
 
-class TraderParametersDistribution:
+class TraderParameters:
     """
     Holds the the trader parameters for the distribution model
     """
@@ -144,3 +92,16 @@ class TraderParametersDistribution:
         self.risk_aversion = risk_aversion
         self.learning_ability = learning_ability
         self.spread = max_spread * np.random.rand()
+
+
+class TraderExpectations:
+    """
+    Holds the agent expectations for several variables
+    """
+    def __init__(self, price):
+        """
+        Initializes trader expectations
+        :param price: float
+        """
+        self.price = price
+        self.returns = {'stocks': 0.0, 'money': 0.0}
