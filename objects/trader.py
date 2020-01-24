@@ -16,6 +16,7 @@ class Trader:
         self.par = parameters
         self.exp = expectations
         self.first_run = True
+        self.metrics = dict.fromkeys(['money', 'inventory', 'inventory_value', 'wealth'], [])
 
     def __repr__(self):
         """

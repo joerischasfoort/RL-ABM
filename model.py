@@ -56,14 +56,22 @@ def ABM_model(traders, orderbook, market_maker, parameters, seed=1):
             inventory_value = mid_price*inventory
             cash = market_maker.var.money[0]
             wealth = cash + inventory_value
-            print(f"Market maker has money {cash} and stocks {inventory}")
-            print(f"Stocks are worth {inventory_value} and thus MM's wealth is {wealth}")
+            if parameters['verbose']:
+                print(f"Market maker has money {cash} and stocks {inventory}")
+                print(f"Stocks are worth {inventory_value} and thus MM's wealth is {wealth}")
+                if market_maker.first_run:
+                    initial_wealth = wealth
+                    market_maker.first_run = False
+                print(f"Profit margin thus far is {round(wealth/initial_wealth-1,2)*100}%")
 
-            if market_maker.first_run:
-                initial_wealth = wealth
-                market_maker.first_run = False
-            print(f"Profit margin thus far is {round(wealth/initial_wealth-1,2)*100}%")
+            # Keep track of metrics
+            market_maker.metrics['money'].append(cash)
+            market_maker.metrics['inventory'].append(inventory)
+            market_maker.metrics['inventory_value'].append(inventory_value)
+            market_maker.metrics['wealth'].append(wealth)
 
+
+            # Market maker decision algorithm
             if cash > 0:
                 bid = orderbook.add_bid(orderbook.highest_bid_price, 1, market_maker)
                 market_maker.var.active_orders.append(bid)

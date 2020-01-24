@@ -1,6 +1,8 @@
 from initialize_model import *
 from model import *
 import time
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 start_time = time.time()
 
@@ -21,7 +23,8 @@ parameters = {'trader_sample_size': 10,
               'strat_share_chartists': 0.0,
               'mutation_intensity': 0.0,
               'average_learning_ability': 0.0,
-              'trades_per_tick': 1}
+              'trades_per_tick': 1,
+              'verbose': False}
 
 # 2 initialise model objects
 traders, orderbook, market_maker = init_objects(parameters, seed=0)
@@ -31,3 +34,9 @@ traders, orderbook, market_maker = ABM_model(traders, orderbook, market_maker, p
 
 
 print("The simulations took", time.time() - start_time, "to run")
+
+# Plot market maker's wealth over time
+sns.set_style("darkgrid")
+plt.plot(market_maker.metrics['wealth'])
+plt.ylabel('Market maker wealth')
+plt.show()
