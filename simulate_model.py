@@ -36,6 +36,6 @@ print("The simulations took", time.time() - start_time, "to run")
 
 # Plot market maker's wealth over time
 sns.set_style("darkgrid")
-plt.plot(market_maker.metrics['wealth'])
+plt.plot(market_maker.var.wealth)
 plt.ylabel('Market maker wealth')
 plt.show()

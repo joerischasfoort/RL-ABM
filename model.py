@@ -31,6 +31,16 @@ def ABM_model(traders, orderbook, market_maker, parameters, seed=1):
             trader.var.stocks.append(trader.var.stocks[-1])
             trader.var.wealth.append(trader.var.money[-1] + trader.var.stocks[-1] * orderbook.tick_close_price[-1])
 
+        # Keep track of market maker metrics
+        market_maker.var.money.append(market_maker.var.money[-1])
+        market_maker.var.stocks.append(market_maker.var.stocks[-1])
+        market_maker.var.wealth.append(market_maker.var.money[-1] + market_maker.var.stocks[-1] * orderbook.tick_close_price[-1])
+
+        if parameters['verbose']:
+            print(f"Market maker has money {cash} and stocks {inventory}")
+            print(f"Stocks are worth {inventory_value} and thus MM's wealth is {wealth}")
+            print(f"Profit margin thus far is {round(wealth/initial_mm_wealth-1,2)*100}%")
+
         #TODO Jakob and / or Adrien update variables of the market maker here (similar to above)
 
         # sort the traders by wealth to
@@ -53,29 +63,12 @@ def ABM_model(traders, orderbook, market_maker, parameters, seed=1):
             chartist_component = np.cumsum(orderbook.returns[:-len(orderbook.returns) - 1:-1]
                                            ) / np.arange(1., float(len(orderbook.returns) + 1))
 
-            # Market maker quotes best ask and bid whenever money/inventory permits
-            # TODO Jakob / Adrien make the market maker use stock / money / wealth data over time (see traders)
-            inventory = market_maker.var.stocks[0]
-            inventory_value = mid_price*inventory
-            cash = market_maker.var.money[0]
-            wealth = cash + inventory_value
-            if parameters['verbose']:
-                print(f"Market maker has money {cash} and stocks {inventory}")
-                print(f"Stocks are worth {inventory_value} and thus MM's wealth is {wealth}")
-                print(f"Profit margin thus far is {round(wealth/initial_mm_wealth-1,2)*100}%")
-
-            # Keep track of metrics
-            market_maker.metrics['money'].append(cash)
-            market_maker.metrics['inventory'].append(inventory)
-            market_maker.metrics['inventory_value'].append(inventory_value)
-            market_maker.metrics['wealth'].append(wealth)
-
 
             # Market maker decision algorithm
-            if cash > 0:
+            if market_maker.var.money[-1] > 0:
                 bid = orderbook.add_bid(orderbook.highest_bid_price, 1, market_maker)
                 market_maker.var.active_orders.append(bid)
-            if inventory > 0:
+            if market_maker.var.stocks[-1] > 0:
                 ask = orderbook.add_ask(orderbook.lowest_ask_price, 1, market_maker)
                 market_maker.var.active_orders.append(ask)
 
