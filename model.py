@@ -36,12 +36,6 @@ def ABM_model(traders, orderbook, market_maker, parameters, seed=1):
         market_maker.var.stocks.append(market_maker.var.stocks[-1])
         market_maker.var.wealth.append(market_maker.var.money[-1] + market_maker.var.stocks[-1] * orderbook.tick_close_price[-1])
 
-        if parameters['verbose']:
-            print(f"Market maker has money {cash} and stocks {inventory}")
-            print(f"Stocks are worth {inventory_value} and thus MM's wealth is {wealth}")
-            print(f"Profit margin thus far is {round(wealth/initial_mm_wealth-1,2)*100}%")
-
-        #TODO Jakob and / or Adrien update variables of the market maker here (similar to above)
 
         # sort the traders by wealth to
         traders_by_wealth.sort(key=lambda x: x.var.wealth[-1], reverse=True)
@@ -64,13 +58,8 @@ def ABM_model(traders, orderbook, market_maker, parameters, seed=1):
                                            ) / np.arange(1., float(len(orderbook.returns) + 1))
 
 
-            # Market maker decision algorithm
-            if market_maker.var.money[-1] > 0:
-                bid = orderbook.add_bid(orderbook.highest_bid_price, 1, market_maker)
-                market_maker.var.active_orders.append(bid)
-            if market_maker.var.stocks[-1] > 0:
-                ask = orderbook.add_ask(orderbook.lowest_ask_price, 1, market_maker)
-                market_maker.var.active_orders.append(ask)
+            # Market maker posts its asks and/or bids given current orderbook and a "reference price"
+            market_maker.post_orders(orderbook, fundamental[0])
 
             for trader in active_traders:
                 # Cancel any active orders

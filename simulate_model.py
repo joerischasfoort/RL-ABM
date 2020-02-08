@@ -26,16 +26,41 @@ parameters = {'trader_sample_size': 10,
               'trades_per_tick': 1,
               'verbose': False}
 
+'''
+
 # 2 initialise model objects
-traders, orderbook, market_maker = init_objects(parameters, seed=0)
+traders, orderbook, market_maker, dumb_market_maker = init_objects(parameters, seed=0)
 
 # 3 simulate model
-traders, orderbook, market_maker = ABM_model(traders, orderbook, market_maker, parameters, seed=0)
+traders, orderbook, market_maker, dumb_market_maker = ABM_model(traders, orderbook, market_maker, dumb_market_maker, parameters, seed=0)
 
 print("The simulations took", time.time() - start_time, "to run")
+
 
 # Plot market maker's wealth over time
 sns.set_style("darkgrid")
 plt.plot(market_maker.var.wealth)
 plt.ylabel('Market maker wealth')
 plt.show()
+
+# Plot market maker's wealth over time
+sns.set_style("darkgrid")
+plt.plot(dumb_market_maker.var.wealth)
+plt.ylabel('Dumb market maker wealth')
+plt.show()
+'''
+
+final_rel_wealth = []
+seed = 2
+
+# 2 initialise model objects
+traders, orderbook, market_maker = init_objects(parameters, seed=seed)
+
+# 3 simulate model
+traders, orderbook, market_maker = ABM_model(traders, orderbook, market_maker, parameters, seed=seed)
+
+this_final_rel_wealth = market_maker.var.wealth[-1] / market_maker.var.wealth[0]
+final_rel_wealth.append(this_final_rel_wealth)
+
+
+print(f"final relative wealth of market maker {final_rel_wealth[0]}")
