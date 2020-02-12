@@ -3,24 +3,18 @@ from collections import defaultdict
 from enum import Enum
 import random
 
-
 # keep a dict that has episode number and rewards
 
-class Agent:
+
+class LearningAgent:
     class UpdateMethod(Enum):
         SARSA = 1
         SARSA_MAX = 2
         EXPECTED_SARSA = 3
 
-    def __init__(self, nA=15, epsilon=0.05, alpha=0.1, gamma=1, update_method=UpdateMethod.SARSA):
-        """ Initialize agent.
-
-        Params
-        ======
-        - nA: number of actions available to the agent
-        """
-        self.nA = nA
-        self.Q = defaultdict(lambda: [0.0]*self.nA)
+    def __init__(self, number_of_actions=15, epsilon=0.05, alpha=0.1, gamma=1, update_method=UpdateMethod.SARSA):
+        self.number_of_actions = number_of_actions
+        self.Q = defaultdict(lambda: [0.0] * self.number_of_actions)
         self.epsilon = epsilon
         self.alpha = alpha
         self.gamma = gamma
@@ -38,14 +32,14 @@ class Agent:
 
         Returns
         =======
-        - probs: an array, each element corresponds to probability of corresponding action selected
+        - probabilities: an array, each element corresponds to probability of corresponding action selected
         """
         def argmax(a):
             return max(range(len(a)), key=lambda x: a[x])
 
-        probs = [self.epsilon/self.nA] * self.nA
-        probs[argmax(self.Q[state])] += 1 - self.epsilon
-        return probs
+        probabilities = [self.epsilon / self.number_of_actions] * self.number_of_actions
+        probabilities[argmax(self.Q[state])] += 1 - self.epsilon
+        return probabilities
 
     def select_action(self, state):
         """ Given the state, select an action.
@@ -58,8 +52,8 @@ class Agent:
         =======
         - action: an integer, compatible with the task's action space
         """
-        probs = self.get_policy_probs(state)
-        return random.choices(list(range(self.nA)), probs, k=1)[0]
+        probabilities = self.get_policy_probs(state)
+        return random.choices(list(range(self.number_of_actions)), probabilities, k=1)[0]
 
     def step(self, state, action, reward, next_state, done):
         """ Update the agent's knowledge, using the most recently sampled tuple.
@@ -78,16 +72,16 @@ class Agent:
         else:
             self.state_visit_counter[state] += 1
 
-        if (done == False):
+        if not done:
             self.epsilon = 1.0 / (1.0 + self.i_episode)
-            if (self.update_method == self.UpdateMethod.SARSA):
+            if self.update_method == self.UpdateMethod.SARSA:
                 next_action = self.select_action(state)
                 self.Q[state][action] += self.alpha * (reward + self.gamma * self.Q[next_state][next_action] - self.Q[state][action])
-            elif (self.update_method == self.UpdateMethod.SARSA_MAX):
+            elif self.update_method == self.UpdateMethod.SARSA_MAX:
                 self.Q[state][action] += self.alpha * (reward + self.gamma * max(self.Q[next_state]) - self.Q[state][action])
-            elif (self.update_method == self.UpdateMethod.EXPECTED_SARSA):
-                probs = self.get_policy_probs(state)
-                self.Q[state][action] += self.alpha * (reward + self.gamma * sum([q_val * prob for (q_val, prob) in zip(self.Q[next_state], probs)]) - self.Q[state][action])
+            elif self.update_method == self.UpdateMethod.EXPECTED_SARSA:
+                probabilities = self.get_policy_probs(state)
+                self.Q[state][action] += self.alpha * (reward + self.gamma * sum([q_val * prob for (q_val, prob) in zip(self.Q[next_state], probabilities)]) - self.Q[state][action])
         else:  # done == True
             self.Q[state][action] += self.alpha * (reward - self.Q[state][action])
             self.i_episode += 1

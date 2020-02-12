@@ -1,5 +1,5 @@
 import numpy as np
-from objects.agent import Agent
+from objects.learningagent import LearningAgent
 
 
 class Trader:
@@ -24,26 +24,26 @@ class Trader:
         """
         return 'Trader' + str(self.name)
 
-    def sell(self, amount, price, respect_stocks=True):
+    def sell(self, amount, price):
         """
         Sells `amount` of stocks for a total of `price`
         :param amount: int Number of stocks sold.
         :param price: float Total price for stocks.
         :return: -
         """
-        if self.var.stocks[-1] < amount and respect_stocks:
+        if self.var.stocks[-1] < amount:
             raise ValueError("not enough stocks to sell this amount")
         self.var.stocks[-1] -= amount
         self.var.money[-1] += price
 
-    def buy(self, amount, price, respect_stocks=True):
+    def buy(self, amount, price):
         """
         Buys `amount` of stocks for a total of `price`
         :param amount: int number of stocks bought.
         :param price: float total price for stocks.
         :return: -
         """
-        if self.var.money[-1] < price and respect_stocks:
+        if self.var.money[-1] < price:
             raise ValueError("not enough money to buy this amount of stocks")
 
         self.var.stocks[-1] += amount
@@ -126,26 +126,26 @@ class MarketMaker:
         """
         return 'Trader' + str(self.name)
 
-    def sell(self, amount, price, respect_stocks=True):
+    def sell(self, amount, price):
         """
         Sells `amount` of stocks for a total of `price`
         :param amount: int Number of stocks sold.
         :param price: float Total price for stocks.
         :return: -
         """
-        if self.var.stocks[-1] < amount and respect_stocks:
+        if self.var.stocks[-1] < amount:
             raise ValueError("not enough stocks to sell this amount")
         self.var.stocks[-1] -= amount
         self.var.money[-1] += price
 
-    def buy(self, amount, price, respect_stocks=True):
+    def buy(self, amount, price):
         """
         Buys `amount` of stocks for a total of `price`
         :param amount: int number of stocks bought.
         :param price: float total price for stocks.
         :return: -
         """
-        if self.var.money[-1] < price and respect_stocks:
+        if self.var.money[-1] < price:
             raise ValueError("not enough money to buy this amount of stocks")
 
         self.var.stocks[-1] += amount
@@ -170,8 +170,7 @@ class MarketMaker:
                 self.var.active_orders.append(ask)
 
 
-
-class RLMarketMaker(Agent):
+class RLMarketMaker(LearningAgent):
     def __init__(self, name, variables):
         self.name = name
         self.var = variables
