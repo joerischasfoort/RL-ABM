@@ -30,8 +30,7 @@ def init_objects(parameters, seed):
     random.shuffle(strat_points)
     agent_points = np.array_split(strat_points, n_traders)
 
-    max_horizon = parameters['horizon'] * 2  # this is the max horizon of an agent if 100% fundamentalist
-    historical_stock_returns = np.random.normal(0, parameters["std_fundamental"], max_horizon)
+    historical_stock_returns = np.random.normal(0, parameters["std_fundamental"], parameters['horizon'])
 
     for idx in range(n_traders):
         weight_fundamentalist = list(agent_points[idx]).count('f') / float(len(agent_points[idx]))
@@ -39,7 +38,8 @@ def init_objects(parameters, seed):
         weight_random = list(agent_points[idx]).count('r') / float(len(agent_points[idx]))
 
         init_stocks = int(np.random.uniform(0, parameters["init_stocks"]))
-        init_money = np.random.uniform(0, (parameters["init_stocks"] * parameters['fundamental_value']))
+        init_money = np.random.uniform(0, (
+                parameters["init_stocks"] * parameters['fundamental_value'] * parameters['money_multiplier']))
 
         if weight_random < 1.0:
             c_share_strat = div0(weight_chartist, (weight_fundamentalist + weight_chartist))
@@ -66,14 +66,12 @@ def init_objects(parameters, seed):
 
     # Add market maker with 100k money and 1k stocks
     mm_tradervariables = TraderVariables(weight_fundamentalist=0, weight_chartist=0, weight_random=0,
-                                         c_share_strat=0, money=100000, stocks=1000, covariance_matrix=0,
+                                         c_share_strat=0, money=10000000, stocks=100000, covariance_matrix=0,
                                          init_price=parameters['fundamental_value'])
-    mm_traderparams = TraderParameters(ref_horizon=0, risk_aversion=0, learning_ability=0.0, max_spread=10000)
-    mm_traderexp = TraderExpectations(parameters['fundamental_value'])
-    market_maker = Trader(0, mm_tradervariables, mm_traderparams, mm_traderexp)
+    market_maker = MarketMaker(0, mm_tradervariables)
 
     orderbook = LimitOrderBook(parameters['fundamental_value'], parameters["std_fundamental"],
-                               max_horizon,
+                               parameters['horizon'],
                                parameters['ticks'])
 
     # initialize order-book returns for initial variance calculations
